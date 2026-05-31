@@ -141,5 +141,9 @@ def delete_dns_record(domain: str, record_type: str, name: str) -> str:
         return f"Deleted {record_type.upper()} record '{name}' from {domain}"
 
 
-if __name__ == "__main__":
+def main():
     mcp.run()
+
+
+if __name__ == "__main__":
+    main()

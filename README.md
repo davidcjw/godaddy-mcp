@@ -18,7 +18,17 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for man
 
 ## Installation
 
-Requires Python 3.11+ and [`uv`](https://docs.astral.sh/uv/).
+### Option A — PyPI (recommended)
+
+Requires [`uv`](https://docs.astral.sh/uv/) (Python 3.11+).
+
+```bash
+uvx godaddy-mcp
+```
+
+No cloning or path configuration needed.
+
+### Option B — from source
 
 ```bash
 git clone https://github.com/davidcjw/godaddy-mcp
@@ -35,6 +45,21 @@ Generate a **Production** API key at [developer.godaddy.com](https://developer.g
 ### 2. Register with Claude Code
 
 Add the following to the `mcpServers` section of `~/.claude.json`:
+
+**With PyPI install (recommended):**
+
+```json
+"godaddy-dns": {
+  "command": "uvx",
+  "args": ["godaddy-mcp"],
+  "env": {
+    "GODADDY_API_KEY": "your_api_key",
+    "GODADDY_API_SECRET": "your_api_secret"
+  }
+}
+```
+
+**With source install:**
 
 ```json
 "godaddy-dns": {
@@ -54,6 +79,8 @@ Restart Claude Code to activate the server.
 Run the server directly:
 
 ```bash
+GODADDY_API_KEY=your_key GODADDY_API_SECRET=your_secret uvx godaddy-mcp
+# or from source:
 GODADDY_API_KEY=your_key GODADDY_API_SECRET=your_secret uv run python server.py
 ```
 
