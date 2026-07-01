@@ -135,3 +135,27 @@ def test_error_response_raises_runtimeerror():
     )
     with pytest.raises(RuntimeError, match="GoDaddy API error 404"):
         server.list_dns_records(DOMAIN)
+
+
+# --- credential + timeout robustness -----------------------------------------
+
+
+def test_missing_credentials_raises_runtime_error(monkeypatch):
+    monkeypatch.delenv("GODADDY_API_KEY", raising=False)
+    with pytest.raises(RuntimeError, match="must be set"):
+        server.list_dns_records(DOMAIN)
+
+
+@respx.mock
+def test_request_uses_configured_timeout():
+    route = respx.get(f"{BASE}/domains/{DOMAIN}/records").mock(
+        return_value=httpx.Response(200, json=[])
+    )
+
+    result = server.list_dns_records(DOMAIN)
+
+    assert result == []
+    assert route.called
+    timeout = respx.calls.last.request.extensions["timeout"]
+    assert timeout["read"] == 30.0
+    assert timeout["connect"] == 30.0

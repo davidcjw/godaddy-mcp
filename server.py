@@ -9,10 +9,16 @@ mcp = FastMCP("godaddy-dns")
 
 BASE_URL = "https://api.godaddy.com/v1"
 
+TIMEOUT = httpx.Timeout(30.0)
+
 
 def _headers() -> dict:
-    key = os.environ["GODADDY_API_KEY"]
-    secret = os.environ["GODADDY_API_SECRET"]
+    key = os.environ.get("GODADDY_API_KEY")
+    secret = os.environ.get("GODADDY_API_SECRET")
+    if not key or not secret:
+        raise RuntimeError(
+            "GODADDY_API_KEY and GODADDY_API_SECRET must be set in the environment"
+        )
     return {
         "Authorization": f"sso-key {key}:{secret}",
         "Content-Type": "application/json",
@@ -41,7 +47,7 @@ def list_dns_records(domain: str, record_type: str = "", name: str = "") -> list
         path += f"/{record_type.upper()}"
         if name:
             path += f"/{name}"
-    with httpx.Client() as client:
+    with httpx.Client(timeout=TIMEOUT) as client:
         r = client.get(path, headers=_headers())
         _raise(r)
         return r.json()
@@ -74,7 +80,7 @@ def add_dns_record(
     }
     if record_type.upper() in ("MX", "SRV"):
         record["priority"] = priority
-    with httpx.Client() as client:
+    with httpx.Client(timeout=TIMEOUT) as client:
         r = client.patch(
             f"{BASE_URL}/domains/{domain}/records",
             headers=_headers(),
@@ -113,7 +119,7 @@ def replace_dns_records(
     }
     if record_type.upper() in ("MX", "SRV"):
         record["priority"] = priority
-    with httpx.Client() as client:
+    with httpx.Client(timeout=TIMEOUT) as client:
         r = client.put(
             f"{BASE_URL}/domains/{domain}/records/{record_type.upper()}/{name}",
             headers=_headers(),
@@ -132,7 +138,7 @@ def delete_dns_record(domain: str, record_type: str, name: str) -> str:
         record_type: A, AAAA, CNAME, MX, TXT, etc.
         name: Record name/subdomain to delete — use "@" for apex/root
     """
-    with httpx.Client() as client:
+    with httpx.Client(timeout=TIMEOUT) as client:
         r = client.delete(
             f"{BASE_URL}/domains/{domain}/records/{record_type.upper()}/{name}",
             headers=_headers(),
