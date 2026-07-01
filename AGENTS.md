@@ -57,6 +57,7 @@ godaddy-mcp/
 - `add_dns_record` — Add a record without overwriting existing ones (PATCH)
 - `replace_dns_records` — Overwrite all records of a given type+name (PUT)
 - `delete_dns_record` — Delete all records matching a given type and name
+- `check_domain_availability` — Check whether a domain is available to register (returns `available`, `price` in micro-units, `currency`, `definitive`)
 
 Supported types: A, AAAA, CNAME, MX, TXT, NS, SRV, CAA, and others supported by GoDaddy API.
 

@@ -102,6 +102,7 @@ Once registered, Claude (or any MCP client) can manage DNS records conversationa
 | `add_dns_record` | Add a record without overwriting existing ones of the same type (PATCH) |
 | `replace_dns_records` | Overwrite all records of a given type+name — use when you need exactly one record (PUT) |
 | `delete_dns_record` | Delete all records matching a given type and name |
+| `check_domain_availability` | Check whether a domain is available to register, with price and currency |
 
 **Supported record types:** A, AAAA, CNAME, MX, TXT, NS, SRV, CAA, and others supported by the GoDaddy API.
 
