@@ -147,6 +147,24 @@ def delete_dns_record(domain: str, record_type: str, name: str) -> str:
         return f"Deleted {record_type.upper()} record '{name}' from {domain}"
 
 
+@mcp.tool()
+def check_domain_availability(domain: str, check_type: str = "FAST") -> dict:
+    """Check whether a domain is available to register.
+
+    Args:
+        domain: The domain to check, e.g. "example.com"
+        check_type: "FAST" (cached, quicker) or "FULL" (authoritative)
+    """
+    with httpx.Client() as client:
+        r = client.get(
+            f"{BASE_URL}/domains/available",
+            headers=_headers(),
+            params={"domain": domain, "checkType": check_type.upper()},
+        )
+        _raise(r)
+        return r.json()
+
+
 def main():
     mcp.run()
 

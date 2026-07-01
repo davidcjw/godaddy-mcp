@@ -3,6 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![MCP](https://img.shields.io/badge/MCP-compatible-green)
+[![CI](https://github.com/davidcjw/godaddy-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/davidcjw/godaddy-mcp/actions/workflows/ci.yml)
 
 A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for managing GoDaddy DNS records. Lets AI assistants (Claude, etc.) list, add, replace, and delete DNS records on any domain in your GoDaddy account.
 
@@ -12,6 +13,7 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for man
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Tools](#tools)
+- [Testing](#testing)
 - [Contributing](#contributing)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
@@ -102,8 +104,20 @@ Once registered, Claude (or any MCP client) can manage DNS records conversationa
 | `add_dns_record` | Add a record without overwriting existing ones of the same type (PATCH) |
 | `replace_dns_records` | Overwrite all records of a given type+name — use when you need exactly one record (PUT) |
 | `delete_dns_record` | Delete all records matching a given type and name |
+| `check_domain_availability` | Check whether a domain is available to register, with price and currency |
 
 **Supported record types:** A, AAAA, CNAME, MX, TXT, NS, SRV, CAA, and others supported by the GoDaddy API.
+
+## Testing
+
+Tests use [`respx`](https://lundberg.github.io/respx/) to mock all HTTP traffic — they never make real GoDaddy API calls. Install the dev dependencies and run the suite:
+
+```bash
+uv sync
+uv run pytest
+```
+
+Continuous integration runs the same suite on every push and pull request via [GitHub Actions](.github/workflows/ci.yml).
 
 ## Contributing
 
@@ -114,7 +128,7 @@ Contributions are welcome! Please open an issue first to discuss what you'd like
 3. Commit your changes (`git commit -m 'feat: describe change'`)
 4. Push and open a pull request
 
-Please make sure the server starts cleanly (`uv run python server.py`) before submitting a PR.
+Please make sure the tests pass (`uv run pytest`) and the server starts cleanly (`uv run python server.py`) before submitting a PR.
 
 ## Code of Conduct
 
