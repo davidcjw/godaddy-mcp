@@ -98,6 +98,7 @@ def replace_dns_records(
     data: str,
     ttl: int = 3600,
     priority: int = 0,
+    dry_run: bool = False,
 ) -> str:
     """Replace ALL DNS records of a given type+name (overwrites any existing ones).
 
@@ -110,6 +111,8 @@ def replace_dns_records(
         data: New record value
         ttl: Time-to-live in seconds (default 3600)
         priority: Priority for MX/SRV records (default 0)
+        dry_run: When True, do NOT call the GoDaddy API — return a
+            description of the change that WOULD be made (default False).
     """
     record: dict = {
         "data": data,
@@ -119,6 +122,11 @@ def replace_dns_records(
     }
     if record_type.upper() in ("MX", "SRV"):
         record["priority"] = priority
+    if dry_run:
+        return (
+            f"[dry_run] Would replace ALL {record_type.upper()} records "
+            f"'{name}' on {domain} (PUT) with payload: {[record]}"
+        )
     with httpx.Client(timeout=TIMEOUT) as client:
         r = client.put(
             f"{BASE_URL}/domains/{domain}/records/{record_type.upper()}/{name}",
@@ -130,14 +138,24 @@ def replace_dns_records(
 
 
 @mcp.tool()
-def delete_dns_record(domain: str, record_type: str, name: str) -> str:
+def delete_dns_record(
+    domain: str, record_type: str, name: str, dry_run: bool = False
+) -> str:
     """Delete all DNS records of a given type and name for a domain.
 
     Args:
         domain: The root domain, e.g. "example.com"
         record_type: A, AAAA, CNAME, MX, TXT, etc.
         name: Record name/subdomain to delete — use "@" for apex/root
+        dry_run: When True, do NOT call the GoDaddy API — return a
+            description of the record(s) that WOULD be deleted (default False).
     """
+    if dry_run:
+        return (
+            f"[dry_run] Would delete ALL {record_type.upper()} records "
+            f"'{name}' from {domain} (DELETE "
+            f"/domains/{domain}/records/{record_type.upper()}/{name})"
+        )
     with httpx.Client(timeout=TIMEOUT) as client:
         r = client.delete(
             f"{BASE_URL}/domains/{domain}/records/{record_type.upper()}/{name}",
