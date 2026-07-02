@@ -108,6 +108,19 @@ def test_replace_dns_records_puts_to_typed_url_with_body():
     assert "Replaced A record" in msg
 
 
+@respx.mock
+def test_replace_dns_records_dry_run_makes_no_request():
+    route = respx.put(f"{BASE}/domains/{DOMAIN}/records/A/www").mock(
+        return_value=httpx.Response(200)
+    )
+    msg = server.replace_dns_records(DOMAIN, "a", "www", "5.6.7.8", dry_run=True)
+
+    assert not route.called
+    assert msg.startswith("[dry_run]")
+    assert "Would replace" in msg
+    assert "5.6.7.8" in msg
+
+
 # --- delete_dns_record -------------------------------------------------------
 
 
@@ -123,6 +136,19 @@ def test_delete_dns_record_deletes_typed_url():
     assert str(request.url) == f"{BASE}/domains/{DOMAIN}/records/CNAME/blog"
     _assert_auth(request)
     assert "Deleted CNAME record" in msg
+
+
+@respx.mock
+def test_delete_dns_record_dry_run_makes_no_request():
+    route = respx.delete(f"{BASE}/domains/{DOMAIN}/records/CNAME/blog").mock(
+        return_value=httpx.Response(200)
+    )
+    msg = server.delete_dns_record(DOMAIN, "cname", "blog", dry_run=True)
+
+    assert not route.called
+    assert msg.startswith("[dry_run]")
+    assert "Would delete" in msg
+    assert "CNAME" in msg
 
 
 # --- error handling ----------------------------------------------------------
